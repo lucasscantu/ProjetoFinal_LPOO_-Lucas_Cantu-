@@ -43,7 +43,7 @@ class JanelaSobre(tk.Toplevel):
             "Controle de acesso ao sistema:\n"
             "   • ADMIN     — acesso total\n"
             "   • OPERADOR  — apenas simular acesso e consultar histórico\n\n"
-            "Autor: [Seu Nome]\n"
+            "Autor: Lucas Cantú\n"
             "Curso: Bacharelado em Ciência da Computação\n"
             "Professora: Vanessa Lago Machado"
         )

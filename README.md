@@ -2,6 +2,7 @@
 
 Projeto Final de **Linguagem de Programação Orientada a Objetos (LPOO)** — Bacharelado em Ciência da Computação — 2026/1
 Professora: Vanessa Lago Machado
+Autor: Lucas Imig Cantú
 
 ---
 
