@@ -136,8 +136,8 @@ pip install -r requirements.txt
 
 ### Passo 2 — Criar o banco e o esquema
 ```bash
-createdb lpoo_projeto_catraca
-psql -d lpoo_projeto_catraca -f dao/schema.sql
+createdb lpoo_projeto_[Lucas_Cantu]
+psql -d lpoo_projeto_[Lucas_Cantu] -f dao/schema.sql
 ```
 
 O script cria as 4 tabelas e **semeia o administrador padrão** (`admin` / `admin123`).
@@ -149,7 +149,7 @@ A conexão usa estes valores padrão, sobrescritíveis por variáveis de ambient
 |--------------|-------------------------|
 | `DB_HOST`    | `localhost`             |
 | `DB_PORT`    | `5432`                  |
-| `DB_NAME`    | `lpoo_projeto_catraca`  |
+| `DB_NAME`    | `lpoo_projeto_[Lucas_Cantu]`  |
 | `DB_USER`    | `postgres`              |
 | `DB_PASSWORD`| `postgres`              |
 

@@ -5,7 +5,7 @@ As credenciais podem ser sobrescritas por variáveis de ambiente, o que é
 útil para não versionar senhas. Caso nada seja definido, usa os valores
 padrão abaixo (compatíveis com uma instalação local típica do PostgreSQL).
 
-Banco esperado (conforme enunciado): lpoo_projeto_catraca
+Banco esperado (conforme enunciado): lpoo_projeto_[Lucas_Cantu]
 """
 
 import os
@@ -22,7 +22,7 @@ class DatabaseConfig:
                 password=os.getenv("DB_PASSWORD", "postgres"),
                 host=os.getenv("DB_HOST", "localhost"),
                 port=os.getenv("DB_PORT", "5432"),
-                database=os.getenv("DB_NAME", "lpoo_projeto_catraca"),
+                database=os.getenv("DB_NAME", "lpoo_projeto_[Lucas_Cantu]"),
             )
             return conexao
         except Error as e:
