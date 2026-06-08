@@ -18,9 +18,6 @@ class CatracaDAO(GenericDAO):
         cat_estado       VARCHAR(20)  NOT NULL
     """
 
-    _SELECT_BASE = """SELECT cat_codigo, cat_localizacao, cat_estado
-                      FROM tb_catracas"""
-
     def __init__(self):
         self.conexao = DatabaseConfig.get_connection()
 
@@ -31,11 +28,14 @@ class CatracaDAO(GenericDAO):
         cursor = None
         try:
             cursor = self.conexao.cursor()
-            cursor.execute(
-                """INSERT INTO tb_catracas (cat_codigo, cat_localizacao, cat_estado)
-                   VALUES (%s, %s, %s)""",
-                (catraca.codigo, catraca.localizacao, catraca.nome_estado()),
-            )
+            query = """INSERT INTO tb_catracas
+                       (cat_codigo, cat_localizacao, cat_estado)
+                       VALUES (%s, %s, %s)"""
+            cursor.execute(query, (
+                catraca.codigo,
+                catraca.localizacao,
+                catraca.nome_estado(),
+            ))
             self.conexao.commit()
             return True, "Catraca cadastrada com sucesso"
 
@@ -55,66 +55,12 @@ class CatracaDAO(GenericDAO):
         cursor = None
         try:
             cursor = self.conexao.cursor()
-            cursor.execute(self._SELECT_BASE + " ORDER BY cat_codigo")
+            cursor.execute("""SELECT cat_codigo, cat_localizacao, cat_estado
+                              FROM tb_catracas ORDER BY cat_codigo""")
             return [self._linha_para_catraca(l) for l in cursor.fetchall()]
 
         except Exception as e:
             print(f"Erro ao listar catracas: {e}")
-            return []
-
-        finally:
-            if cursor:
-                cursor.close()
-
-    def buscar_por_termo(self, termo: str):
-        """
-        Filtra catracas por parte do código ou da localização.
-        Sem termo devolve todas (equivale a limpar o filtro).
-        """
-        if not self.conexao:
-            return []
-
-        cursor = None
-        try:
-            cursor = self.conexao.cursor()
-            termo = (termo or "").strip()
-
-            if not termo:
-                return self.listar_todos()
-
-            termo_like = f"%{termo}%"
-            cursor.execute(
-                self._SELECT_BASE + """
-                WHERE cat_codigo ILIKE %s OR cat_localizacao ILIKE %s
-                ORDER BY cat_codigo""",
-                (termo_like, termo_like),
-            )
-            return [self._linha_para_catraca(l) for l in cursor.fetchall()]
-
-        except Exception as e:
-            print(f"Erro ao filtrar catracas: {e}")
-            return []
-
-        finally:
-            if cursor:
-                cursor.close()
-
-    def buscar_por_estado(self, estado: str):
-        """Filtra catracas pelo nome do estado (Bloqueada/Liberada/Manutencao)."""
-        if not self.conexao:
-            return []
-
-        cursor = None
-        try:
-            cursor = self.conexao.cursor()
-            cursor.execute(
-                self._SELECT_BASE + " WHERE cat_estado = %s ORDER BY cat_codigo",
-                (estado,),
-            )
-            return [self._linha_para_catraca(l) for l in cursor.fetchall()]
-
-        except Exception as e:
-            print(f"Erro ao filtrar catracas por estado: {e}")
             return []
 
         finally:
@@ -128,10 +74,8 @@ class CatracaDAO(GenericDAO):
         cursor = None
         try:
             cursor = self.conexao.cursor()
-            cursor.execute(
-                "DELETE FROM tb_catracas WHERE cat_codigo = %s",
-                (id_objeto.strip().upper(),),
-            )
+            cursor.execute("DELETE FROM tb_catracas WHERE cat_codigo = %s",
+                           (id_objeto.strip().upper(),))
             self.conexao.commit()
             if cursor.rowcount == 0:
                 return False, "Catraca não encontrada"
@@ -140,10 +84,8 @@ class CatracaDAO(GenericDAO):
         except Exception as e:
             print(f"Erro ao remover catraca {id_objeto}: {e}")
             self.conexao.rollback()
-            return False, (
-                "Não foi possível remover. Verifique se há acessos "
-                f"registrados para esta catraca. Detalhe: {e}"
-            )
+            return False, (f"Não foi possível remover. Verifique se há acessos "
+                           f"registrados para esta catraca. Detalhe: {e}")
 
         finally:
             if cursor:
@@ -156,12 +98,14 @@ class CatracaDAO(GenericDAO):
         cursor = None
         try:
             cursor = self.conexao.cursor()
-            cursor.execute(
-                """UPDATE tb_catracas
-                   SET cat_localizacao = %s, cat_estado = %s
-                   WHERE cat_codigo = %s""",
-                (catraca.localizacao, catraca.nome_estado(), catraca.codigo),
-            )
+            query = """UPDATE tb_catracas
+                       SET cat_localizacao = %s, cat_estado = %s
+                       WHERE cat_codigo = %s"""
+            cursor.execute(query, (
+                catraca.localizacao,
+                catraca.nome_estado(),
+                catraca.codigo,
+            ))
             self.conexao.commit()
             if cursor.rowcount == 0:
                 return False, "Catraca não encontrada para atualização"
@@ -176,6 +120,7 @@ class CatracaDAO(GenericDAO):
             if cursor:
                 cursor.close()
 
+    # ------------------------------------------------------------------
     def buscar_por_codigo(self, codigo: str):
         if not self.conexao:
             return None
@@ -183,10 +128,9 @@ class CatracaDAO(GenericDAO):
         cursor = None
         try:
             cursor = self.conexao.cursor()
-            cursor.execute(
-                self._SELECT_BASE + " WHERE cat_codigo = %s",
-                (codigo.strip().upper(),),
-            )
+            cursor.execute("""SELECT cat_codigo, cat_localizacao, cat_estado
+                              FROM tb_catracas WHERE cat_codigo = %s""",
+                           (codigo.strip().upper(),))
             linha = cursor.fetchone()
             return self._linha_para_catraca(linha) if linha else None
 

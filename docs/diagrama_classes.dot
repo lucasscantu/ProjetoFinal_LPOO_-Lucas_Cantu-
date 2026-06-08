@@ -1,0 +1,77 @@
+digraph DiagramaDeClasses {
+    rankdir=TB;
+    bgcolor="white";
+    compound=true;
+    graph [fontname="Helvetica", fontsize=12, nodesep=0.35, ranksep=0.7, pad=0.4, splines=spline];
+    node  [fontname="Helvetica", fontsize=10, shape=record, style="filled", fillcolor="#f4f7fb", color="#33506b"];
+    edge  [fontname="Helvetica", fontsize=9, color="#33506b"];
+
+    subgraph cluster_auth {
+        label="Autenticacao e Controle de Acesso";
+        style="rounded,filled"; fillcolor="#fdeef0"; color="#cc9b9b"; fontsize=11;
+        Administrador [label="{Administrador|+ login : str\l+ nome : str\l+ perfil : PerfilAdmin\l+ ativo : bool\l+ senha_hash : str\l|+ hash_senha(s) : str\l+ verificar_senha(s) : bool\l+ is_admin() : bool\l}"];
+        PerfilAdmin [label="{\<\<enum\>\>\nPerfilAdmin|ADMIN\lOPERADOR\l}"];
+        Sessao [label="{\<\<singleton\>\>\nSessao|- administrador\l|+ login(adm)\l+ logout()\l+ pode(perfil) : bool\l+ exigir_admin()\l}"];
+    }
+
+    subgraph cluster_dominio {
+        label="model  (dominio persistido)";
+        style="rounded,filled"; fillcolor="#eef3f9"; color="#9bb3cc"; fontsize=11;
+        Usuario [label="{\<\<abstract\>\>\nUsuario|+ cpf : str\l+ nome : str\l+ ativo : bool\l|+ validar_cpf() : bool\l# tipo : TipoUsuario\l+ get_estrategia_validacao()\l}"];
+        Aluno       [label="{Aluno|+ matricula : str\l+ plano_valido : bool\l}"];
+        Funcionario [label="{Funcionario|+ setor : str\l}"];
+        Visitante   [label="{Visitante|+ autorizado : bool\l+ validade : date\l}"];
+        Catraca [label="{Catraca|+ codigo : str\l+ localizacao : str\l+ estado : CatracaState\l|+ validar_codigo() : bool\l+ liberar() / bloquear()\l+ entrar_manutencao()\l}"];
+        Acesso [label="{Acesso  \<\<associativa\>\>|+ id : int\l+ usuario_cpf : str  (FK)\l+ catraca_codigo : str  (FK)\l+ tipo : TipoAcesso\l+ resultado : bool\l+ motivo : str\l+ data_hora : datetime\l}", fillcolor="#fbf3ee"];
+    }
+
+    subgraph cluster_state {
+        label="Padrao State  (estado da catraca)";
+        style="rounded,filled"; fillcolor="#eef9ef"; color="#9bcca0"; fontsize=11;
+        CatracaState [label="{\<\<abstract\>\>\nCatracaState|+ nome : str\l|+ liberar(c)\l+ bloquear(c)\l+ entrar_manutencao(c)\l}"];
+        BloqueadaState  [label="BloqueadaState"];
+        LiberadaState   [label="LiberadaState"];
+        ManutencaoState [label="ManutencaoState"];
+    }
+
+    subgraph cluster_strategy {
+        label="Padrao Strategy  (regras de autorizacao)";
+        style="rounded,filled"; fillcolor="#f9eef6"; color="#cc9bc1"; fontsize=11;
+        ValidacaoAcessoStrategy [label="{\<\<interface\>\>\nValidacaoAcessoStrategy|+ validar(usuario, catraca)\l   : (bool, str)\l}"];
+        ValidacaoAlunoStrategy       [label="ValidacaoAlunoStrategy"];
+        ValidacaoFuncionarioStrategy [label="ValidacaoFuncionarioStrategy"];
+        ValidacaoVisitanteStrategy   [label="ValidacaoVisitanteStrategy"];
+    }
+
+    subgraph cluster_dao {
+        label="dao  (Padrao DAO)  +  Factory";
+        style="rounded,filled"; fillcolor="#fbf9ee"; color="#ccc59b"; fontsize=11;
+        GenericDAO [label="{\<\<abstract\>\>\nGenericDAO|+ salvar() + atualizar()\l+ remover() + listar_todos()\l}"];
+        AdministradorDAO [label="{AdministradorDAO|+ autenticar(login, senha)\l+ buscar_por_login()\l}"];
+        UsuarioDAO [label="{UsuarioDAO|+ buscar_por_cpf()\l+ buscar_por_termo()\l}"];
+        CatracaDAO [label="{CatracaDAO|+ buscar_por_codigo()\l}"];
+        AcessoDAO  [label="{AcessoDAO|+ listar_filtrado()\l}"];
+        UsuarioFactory [label="{\<\<factory\>\>\nUsuarioFactory|+ criar(tipo, **dados)\l   : Usuario\l}"];
+    }
+
+    edge [arrowhead=onormal];
+    Aluno -> Usuario;  Funcionario -> Usuario;  Visitante -> Usuario;
+    BloqueadaState -> CatracaState;  LiberadaState -> CatracaState;  ManutencaoState -> CatracaState;
+    AdministradorDAO -> GenericDAO;  UsuarioDAO -> GenericDAO;  CatracaDAO -> GenericDAO;  AcessoDAO -> GenericDAO;
+
+    edge [arrowhead=onormal, style=dashed];
+    ValidacaoAlunoStrategy -> ValidacaoAcessoStrategy;
+    ValidacaoFuncionarioStrategy -> ValidacaoAcessoStrategy;
+    ValidacaoVisitanteStrategy -> ValidacaoAcessoStrategy;
+
+    edge [arrowhead=vee, style=solid];
+    Acesso -> Usuario [label="N..1"];
+    Acesso -> Catraca [label="N..1"];
+
+    edge [arrowhead=open, style=dashed];
+    Catraca -> CatracaState [label="estado"];
+    Usuario -> ValidacaoAcessoStrategy [label="usa"];
+    UsuarioFactory -> Usuario [label="cria"];
+    Administrador -> PerfilAdmin [label="tem"];
+    Sessao -> Administrador [label="logado"];
+}

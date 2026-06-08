@@ -1,0 +1,10 @@
+# Dependências do Sistema de Catraca Eletrônica (LPOO 2026/1)
+# Instale com:  pip install -r requirements.txt
+#
+# Driver de acesso ao PostgreSQL (camada DAO).
+psycopg2-binary>=2.9,<3.0
+
+# Tkinter NÃO é instalado via pip: ele acompanha o Python.
+# Em distribuições Linux pode ser necessário instalar o pacote do sistema:
+#   Debian/Ubuntu:  sudo apt install python3-tk
+#   Fedora:         sudo dnf install python3-tkinter

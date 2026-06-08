@@ -3,9 +3,9 @@
 -- SGBD: PostgreSQL
 --
 -- Para criar o banco antes (uma vez):
---   CREATE DATABASE lpoo_projeto_lucas_cantu;
+--   CREATE DATABASE lpoo_projeto_catraca;
 -- Depois conecte-se a ele e execute este script:
---   \c lpoo_projeto_lucas_cantu
+--   \c lpoo_projeto_catraca
 --   \i schema.sql
 -- =====================================================================
 
